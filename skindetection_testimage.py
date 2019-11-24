@@ -1,28 +1,28 @@
 from PIL import Image
 
 # change as per need
-TEST_IMAGE_LOCATION = "test.jpg"
+TEST_IMAGE_LOCATION = "07_WickedlyFastWifi_crop.jpg"
 TRAINING_FILE_LOCATION = "training_sheet.txt"
-OUTPUT_IMAGE_NAME = "output_image.png"
+OUTPUT_IMAGE_NAME = "output_image8.png"
 
 OUTPUT_IMAGE=[]
 MY_HASH_LIST = {}
 
-im=Image.open(TEST_IMAGE_LOCATION, "r")                    # read image from image location
-pix_val=list(im.getdata())                                 # get all pixel values from image
+im=Image.open(TEST_IMAGE_LOCATION, "r")
+pix_val=list(im.getdata())
 
-for line in open(TRAINING_FILE_LOCATION).readlines():      # read each line from training sheet
-    MY_HASH_LIST[line.strip()] = ""                        # add that value to dictionary so that searching is easy
+for line in open(TRAINING_FILE_LOCATION).readlines():
+    MY_HASH_LIST[line.strip()] = ""
 
-for rgb in pix_val:                                        # search for every pixel of the test image
-    r_unmask, g_unmask, b_unmask = rgb                     # get rgb value of that pixel
-    key = str(255*255*r_unmask + 255*g_unmask + b_unmask)  # get index position of that rgb value
+for rgb in pix_val:
+    r_unmask, g_unmask, b_unmask = rgb
+    key = str(255*255*r_unmask + 255*g_unmask + b_unmask)
 
-    if key in MY_HASH_LIST:                                # if that index in present in dictionary, it means it is a skin
-        OUTPUT_IMAGE.append((255, 255, 255))               # add pixel as white
-    else:                                                  # else non skin
-        OUTPUT_IMAGE.append((0, 0, 0))                     # add pixel as black
+    if key in MY_HASH_LIST:
+        OUTPUT_IMAGE.append((r_unmask, g_unmask, b_unmask))
+    else:
+        OUTPUT_IMAGE.append((255, 255, 255))
 
 
 im.putdata(OUTPUT_IMAGE)
-im.save(OUTPUT_IMAGE_NAME)                                 # save image
+im.save(OUTPUT_IMAGE_NAME)

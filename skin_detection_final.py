@@ -1,48 +1,80 @@
 import os
 from PIL import Image
 
+
+TEST_IMAGE_LOCATION = "unmask/0006.jpg"
+# TRAINING_FILE_LOCATION = "training_sheet.txt"
+OUTPUT_IMAGE_NAME = "output_image2.png"
+
+OUTPUT_IMAGE=[]
 #change as per need
-UNMASK_DIR = 'H:/CSE/Python/HumanSkinDetection/unmask/'       # folder that contains all color images
-MASK_DIR = 'H:/CSE/Python/HumanSkinDetection/mask/'         # folder that contains all mask images
-TRAINING_SHEET = "training_sheet.txt"   # name of training sheet u want
+UNMASK_DIR = '/home/shan/Downloads/HumanSkinDetection-NaiveByes-Python/unmask/'
+MASK_DIR = '/home/shan/Downloads/HumanSkinDetection-NaiveByes-Python/mask/'
+TRAINING_SHEET = "training_sheet.txt"
+skin='skin.txt'
+noskin='noskin.txt'
+THRESHOLD = float(input("Enter Threshold(0-1): "))
+MY_HASH_LIST = {}
 
-THRESHOLD = 0.4
-
-SKIN_ARRAY = [0] * (256 ** 3)              # initialize array with 256*256*256 length
+SKIN_ARRAY = [0] * (256 ** 3)
 NON_SKIN_ARRAY = [0] * (256 ** 3)
 skinCount = nonSkinCount = 0
 
-unmask_file_names = os.listdir(UNMASK_DIR)         # get all color images file names
-mask_file_names = os.listdir(MASK_DIR)             # get all mask images file names
-
-for i in range(len(mask_file_names)):              # loop through each image
-    print(i * 100 / len(unmask_file_names), "%")   # print percentage done
-    mask_image = list(Image.open(MASK_DIR + mask_file_names[i], "r").getdata())         # get mask image at i-th location
-    unmask_image = list(Image.open(UNMASK_DIR + unmask_file_names[i], "r").getdata())   # get color image at i-th position
-
-    for j in range(len(mask_image)):                                 # loop through each pixel of i-th position image
-        r_mask, g_mask, b_mask = mask_image[j]                       # get rgb value of mask image at j-th pixel
-        r_unmask, g_unmask, b_unmask = unmask_image[j]               # get rgb value of color image at j-th pixel
-        idx = 255*255*r_unmask + 255*g_unmask + b_unmask             # get index using the rgb value of color image at j-th pixel
-        if (r_mask < 250) and (g_mask < 250) and (b_mask < 250):     # if non-white
-            SKIN_ARRAY[idx] += 1                                     # add 1 at the index position of SKIN_ARRAY
-            skinCount += 1                                           # also increment total skin count
-        else:                                                        # if white
-            NON_SKIN_ARRAY[idx] += 1                                 # add 1 at the index position of NON_SKIN_ARRAY
-            nonSkinCount += 1                                        # also increment total non skin count
+unmask_file_names = os.listdir(UNMASK_DIR)
+mask_file_names = os.listdir(MASK_DIR)
+mask_file_names.sort()
+unmask_file_names.sort()
+for i in range(len(mask_file_names)):
+    print(i * 100 / len(unmask_file_names), "%")
+    mask_image = list(Image.open(MASK_DIR + mask_file_names[i], "r").getdata())
+    unmask_image = list(Image.open(UNMASK_DIR + unmask_file_names[i], "r").getdata())
+    for j in range(len(mask_image)):
+        r_mask, g_mask, b_mask = mask_image[j]
+        r_unmask, g_unmask, b_unmask = unmask_image[j]
+        idx = 255*255*r_unmask + 255*g_unmask + b_unmask
+        if (r_mask < 255) and (g_mask < 255) and (b_mask < 255):
+            SKIN_ARRAY[idx] += 1
+            skinCount += 1
+        else:
+            NON_SKIN_ARRAY[idx] += 1
+            nonSkinCount += 1
+# with open(skin, 'w') as f:
+#     for item in SKIN_ARRAY:
+#         if item!=0:
+#             f.write("%s\n" % item)
+# with open(noskin, 'w') as f:
+#     for item in NON_SKIN_ARRAY:
+#         if item!=0:
+#             f.write("%s\n" % item)
 
 print("Creating Training Sheet")
-with open(TRAINING_SHEET, 'w') as f:                                 #open training sheet for writing
-    for i in range(len(SKIN_ARRAY)):                                 # go through each value of the arrays
-        skinValue = SKIN_ARRAY[i]/skinCount                          # get skin value by dividing the SKIN_ARRAY[i] with total skin count
-        nonSkinValue = NON_SKIN_ARRAY[i]/nonSkinCount                # get non skin value by dividing NON_SKIN_ARRAY[i] with total non skin count
+print(skinCount,nonSkinCount)
 
-        ''' if nonSkinValue is 0, divide by zero occurs and if skinValue is 0, the threshold becomes 0... so no     
-            need to check for those... we will be saving index values with threshold>0.4   
-                                                                             '''
-        if nonSkinValue != 0 and skinValue != 0:
-            threshold = skinValue / nonSkinValue
-            if threshold > THRESHOLD:
-                f.write(str(i) + "\n")
+# with open(TRAINING_SHEET, 'w') as f:
+for i in range(len(SKIN_ARRAY)):
+    skinValue = SKIN_ARRAY[i]/skinCount
+    nonSkinValue = NON_SKIN_ARRAY[i]/nonSkinCount
+    if nonSkinValue != 0 and skinValue != 0:
+        threshold = skinValue / nonSkinValue
+        if threshold > THRESHOLD:
+            MY_HASH_LIST[str(i)] = ""
+            # f.write(str(i) + "\n")
 
-print("Training Sheet Complete")
+
+im=Image.open(TEST_IMAGE_LOCATION, "r")
+pix_val=list(im.getdata())
+
+for rgb in pix_val:
+    r_unmask, g_unmask, b_unmask = rgb
+    key = str(255*255*r_unmask + 255*g_unmask + b_unmask)
+
+    if key in MY_HASH_LIST:
+        OUTPUT_IMAGE.append((r_unmask, g_unmask, b_unmask))
+    else:
+        OUTPUT_IMAGE.append((255, 255, 255))
+
+im.putdata(OUTPUT_IMAGE)
+im.save(OUTPUT_IMAGE_NAME)
+
+
+print("Complete")

@@ -8,8 +8,8 @@ bayes = np.zeros((256, 256, 256))
 white_pixel = (250, 250, 250)
 skinCount = 0
 nonSkinCount = 0
-maskPath = 'H:\\CSE\\Python\\Demo\\mask'
-unMaskPath = 'H:\\CSE\\Python\\Demo\\unmask'
+maskPath = '/home/shan/Downloads/HumanSkinDetection-NaiveByes-Python/mask'
+unMaskPath = '/home/shan/Downloads/HumanSkinDetection-NaiveByes-Python/unmask'
 mask = os.listdir(maskPath)
 unMask = os.listdir(unMaskPath)
 print("Training Started....\n Preparing Data........")
