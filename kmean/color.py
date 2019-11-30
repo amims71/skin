@@ -56,6 +56,7 @@ def groupPoints(centers):
             # print(groups)
     return groups
 
+
 image_rgb_list = list(Image.open(IMAGE_LOCATION, "r").getdata())
 # print(image_rgb_list)
 for j in range(len(image_rgb_list)):
@@ -74,9 +75,6 @@ centers = random.sample(list(MY_HASH_LIST.keys()), color_count)
 print(centers)
 
 print(closestPoint((0, 1, 2), centers))
-
-
-
 
 for key in groups:
     print(midPoint(groups[key]))
