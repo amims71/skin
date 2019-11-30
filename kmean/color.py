@@ -81,7 +81,7 @@ centers = []
 for key in groups:
     centers.append(midPoint(groups[key]))
 print(centers)
-while distance(centers[0], centersOld[0]) > 1:
+while distance(centers[0], centersOld[0]) > 1 and distance(centers[len(centers)-1], centersOld[len(centers)-1]) > 1:
     groups = groupPoints(centers)
     centersOld = centers
     centers = []
