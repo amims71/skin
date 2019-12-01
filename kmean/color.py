@@ -1,4 +1,6 @@
+import operator
 import random
+from collections import Counter
 from math import sqrt, floor
 
 from PIL import Image
@@ -12,7 +14,6 @@ OUTPUT_IMAGE = []
 # change as per need
 color_count = int(input("Enter Color Count: "))
 MY_HASH_LIST = {}
-
 
 COLOR_ARRAY = [0] * (256 ** 3)
 skinCount = nonSkinCount = 0
@@ -40,6 +41,11 @@ def midPoint(points):
         y += point[1]
         z += point[2]
     return floor(x / len(points)), floor(y / len(points)), floor(z / len(points))
+
+
+def medPoint(points):
+    counter = dict(Counter(points))
+    return max(counter, key=counter.get)
 
 
 def groupPoints(centers):
@@ -79,14 +85,16 @@ groups = groupPoints(centers)
 centersOld = centers
 centers = []
 for key in groups:
-    centers.append(midPoint(groups[key]))
+    # centers.append(midPoint(groups[key]))
+    centers.append(medPoint(groups[key]))
 print(centers)
-while distance(centers[0], centersOld[0]) > 1 and distance(centers[len(centers)-1], centersOld[len(centers)-1]) > 1:
+while distance(centers[0], centersOld[0]) > 1 and distance(centers[len(centers) - 1], centersOld[len(centers) - 1]) > 1:
     groups = groupPoints(centers)
     centersOld = centers
     centers = []
     for key in groups:
-        centers.append(midPoint(groups[key]))
+        # centers.append(midPoint(groups[key]))
+        centers.append(medPoint(groups[key]))
         # print(key)
     print(centers)
 
